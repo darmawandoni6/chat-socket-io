@@ -3,6 +3,7 @@ const Messages = require("../models/messages.model");
 const Rooms = require("../models/rooms.model");
 const Rooms_users = require("../models/rooms_users.model");
 const Users = require("../models/users.model");
+const rooms_usersService = require("./rooms_users.service");
 
 module.exports = {
   create: async (payload) => {
@@ -67,6 +68,21 @@ module.exports = {
   update: async (where, payload) => {
     try {
       await Rooms.update(payload, { where });
+      return { error: null };
+    } catch (error) {
+      return { error: error.message };
+    }
+  },
+  remove: async (where, users) => {
+    try {
+      await db.transaction(async (transaction) => {
+        await Rooms_users.destroy({
+          where: users,
+          transaction,
+        });
+        console.log(where);
+        await Rooms.destroy({ where, transaction });
+      });
       return { error: null };
     } catch (error) {
       return { error: error.message };

@@ -209,6 +209,36 @@ module.exports = {
   },
   removeRoom: async (req, res, next) => {
     try {
+      const { id } = req.params;
+      const { id: userId } = req.payload;
+
+      let result = { data: null, error: null };
+
+      result = await rooms_usersService.findOne({
+        roomId: id,
+        userId,
+      });
+
+      if (!result.data) throw createError.NotFound();
+      if (result.data.role !== "admin") {
+        throw createError.BadRequest("remove room only admin");
+      }
+      if (result.error) throw createError.BadRequest(result.error);
+
+      result = await rooms_usersService.findAll({
+        roomId: id,
+      });
+      if (result.error) throw createError.BadRequest(result.error);
+
+      const users = result.data.map((item) => item.id);
+      result = await roomsService.remove({ id }, { id: users });
+      if (result.error) throw createError.BadRequest(result.error);
+
+      response({
+        res,
+        status: 200,
+        message: "Success remove grub",
+      });
     } catch (error) {
       next(error);
     }
