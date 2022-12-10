@@ -3,7 +3,6 @@ const Messages = require("../models/messages.model");
 const Rooms = require("../models/rooms.model");
 const Rooms_users = require("../models/rooms_users.model");
 const Users = require("../models/users.model");
-const rooms_usersService = require("./rooms_users.service");
 
 module.exports = {
   create: async (payload) => {
@@ -38,6 +37,11 @@ module.exports = {
             model: Users,
             attributes: [],
             where,
+          },
+          {
+            model: Messages,
+            limit: 1,
+            order: [["updatedAt", "DESC"]],
           },
         ],
       });

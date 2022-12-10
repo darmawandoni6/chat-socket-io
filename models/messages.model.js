@@ -1,14 +1,14 @@
-const Sequelize = require("sequelize");
+const { DataTypes } = require("sequelize");
 const db = require("../configs/config.db");
-const Rooms = require("./rooms.model");
-
-const { DataTypes } = Sequelize;
 
 const Messages = db.define(
   "messages",
   {
     message: {
       type: DataTypes.TEXT,
+    },
+    replyId: {
+      type: DataTypes.INTEGER,
     },
   },
   { freezeTableName: true }
