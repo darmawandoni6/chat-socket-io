@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifikasi Email</title>
+  </head>
+  <body
+    style="
+      width: 100%;
+      text-align: center;
+      padding: 20px 0px;
+      box-sizing: border-box;
+      margin: 0px;
+    "
+  >
+    <h1>Message App</h1>
+    <p>
+      Registrasi Berhasil, silahkan verifikasi email ini dengan menginput OTP :
+    </p>
+    <h3><%= content.otp %></h3>
+
+    <p>Or</p>
+    <a
+      href="<%= content.link %>"
+      style="
+        color: white;
+        background-color: #049f99;
+        padding: 8px 20px;
+        border: none;
+        border-radius: 8px;
+        text-decoration: none;
+      "
+      role="button"
+    >
+      Verifikasi
+    </a>
+  </body>
+</html>

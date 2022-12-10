@@ -7,5 +7,6 @@ var router = express.Router();
 router.get("/", jwt.verifyAccessToken, authControllers.auth);
 router.post("/register", authControllers.register);
 router.post("/login", authControllers.login);
+router.post("/forgot-password", authControllers.forgotPassword);
 
 module.exports = router;

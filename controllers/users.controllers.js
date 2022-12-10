@@ -19,4 +19,49 @@ module.exports = {
       next(error);
     }
   },
+  findUsers: async (req, res, next) => {
+    try {
+      const { name, email } = req.query;
+
+      const where = {
+        name: {
+          [Op.substring]: name ?? "",
+        },
+        email: {
+          [Op.substring]: email ?? "",
+        },
+      };
+
+      const { data, error } = await usersService.findAll(where);
+      if (error) createError.BadRequest(error);
+
+      response({ res, status: 200, message: "success find data", data });
+    } catch (error) {
+      next(error);
+    }
+  },
+  updateUser: async (req, res, next) => {
+    try {
+      const { name } = req.body;
+      const { id } = req.payload;
+      if (!name) throw createError.BadRequest("name is required");
+
+      let result = { data: null, error: null };
+      result = await usersService.findOne({
+        name,
+        id: {
+          [Op.ne]: id,
+        },
+      });
+      if (result.data) throw createError.Conflict("name already exist");
+      if (result.error) throw createError.BadRequest(result.error);
+
+      result = await usersService.update({ name }, { id });
+      if (result.error) throw createError.BadRequest(result.error);
+
+      response({ res, status: 200, message: "success update profile" });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

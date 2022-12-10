@@ -28,12 +28,12 @@ require("./models/associations");
 // routes
 require("./routes/index")(app);
 
-app.get("/sample", (req, res) => {
-  // res.send({
-  //   xxx: "xxx",
-  // });
-  // res.sendFile(__dirname, "/routes/index.html");
-  res.sendFile(__dirname + "/routes/index.html");
+app.get("/", async (req, res, next) => {
+  try {
+    res.send("Welcome to Message App");
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = app;

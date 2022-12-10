@@ -3,6 +3,9 @@ const response = require("../../helpers/response");
 const { encrypt, compare } = require("../../middlewares/bcrypt");
 const { signToken } = require("../../middlewares/jwt");
 const usersService = require("../../services/users.service");
+const { generateString } = require("../../helpers/randomString");
+const { sendEmail } = require("../../helpers/sendEmail");
+const path = require("path");
 
 module.exports = {
   auth: async (req, res, next) => {
@@ -73,6 +76,44 @@ module.exports = {
       res.send({
         token,
         expiredDate: date,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  forgotPassword: async (req, res, next) => {
+    try {
+      const { email } = req.body;
+
+      let result = { data: null, error: null };
+      result = await usersService.findOne({ email });
+      if (!result.data) throw createError.NotFound();
+      if (result.error) throw createError.BadRequest(result.error);
+
+      const password = generateString(12);
+      await sendEmail(
+        path.join(__dirname, "../../templates/forgot_password.ejs"),
+        {
+          receiver: email,
+          subject: "test email",
+          content: {
+            password,
+            link: "#",
+          },
+        }
+      );
+
+      const payload = {
+        password: encrypt(password),
+      };
+
+      result = await usersService.update(payload, { id: result.data.id });
+      if (result.error) throw createError.BadRequest(result.error);
+
+      response({
+        res,
+        status: 200,
+        message: "Please check your email!",
       });
     } catch (error) {
       next(error);
