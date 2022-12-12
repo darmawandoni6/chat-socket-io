@@ -70,8 +70,7 @@ module.exports = {
       date.setMilliseconds(time);
 
       res.status = 200;
-      // res.cookie("token", token, { maxAge: time, httpOnly: true });
-      res.cookie("token", token);
+      res.cookie("token", token, { expires: date, httpOnly: true });
 
       res.send({
         token,
@@ -91,6 +90,14 @@ module.exports = {
       if (result.error) throw createError.BadRequest(result.error);
 
       const password = generateString(12);
+
+      const payload = {
+        password: encrypt(password),
+      };
+
+      result = await usersService.update(payload, { id: result.data.id });
+      if (result.error) throw createError.BadRequest(result.error);
+
       await sendEmail(
         path.join(__dirname, "../../templates/forgot_password.ejs"),
         {
@@ -103,17 +110,22 @@ module.exports = {
         }
       );
 
-      const payload = {
-        password: encrypt(password),
-      };
-
-      result = await usersService.update(payload, { id: result.data.id });
-      if (result.error) throw createError.BadRequest(result.error);
-
       response({
         res,
         status: 200,
         message: "Please check your email!",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  logOut: async (req, res, next) => {
+    try {
+      res.clearCookie("token");
+      response({
+        res,
+        status: 200,
+        message: "Logout berhasil",
       });
     } catch (error) {
       next(error);
