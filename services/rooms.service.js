@@ -5,6 +5,14 @@ const Rooms_users = require("../models/rooms_users.model");
 const Users = require("../models/users.model");
 
 module.exports = {
+  findOne: async (where) => {
+    try {
+      const data = await Rooms.findOne({ where });
+      return { data };
+    } catch (error) {
+      return { error: error.message };
+    }
+  },
   create: async (payload) => {
     try {
       const data = await Rooms.create(payload);
@@ -15,7 +23,7 @@ module.exports = {
   },
   addRoom: async (payload, payloadUsers, admin) => {
     try {
-      await db.transaction(async (transaction) => {
+      const data = await db.transaction(async (transaction) => {
         const room = await Rooms.create(payload, { transaction });
         const res = payloadUsers.map((item) => ({
           roomId: room.id,
@@ -23,8 +31,9 @@ module.exports = {
           role: item === admin ? "admin" : "user",
         }));
         await Rooms_users.bulkCreate(res, { transaction });
+        return room;
       });
-      return { error: null };
+      return { data };
     } catch (error) {
       return { error: error.message };
     }

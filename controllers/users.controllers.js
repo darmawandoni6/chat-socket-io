@@ -21,15 +21,30 @@ module.exports = {
   },
   findUsers: async (req, res, next) => {
     try {
-      const { name, email } = req.query;
+      const { search } = req.query;
+      const { name } = req.payload;
 
+      if (!search) {
+        response({ res, status: 200, message: "success find data", data: [] });
+        return;
+      }
       const where = {
         name: {
-          [Op.substring]: name ?? "",
+          [Op.ne]: name,
         },
-        email: {
-          [Op.substring]: email ?? "",
-        },
+
+        [Op.or]: [
+          {
+            name: {
+              [Op.substring]: search ?? "",
+            },
+          },
+          {
+            email: {
+              [Op.substring]: search ?? "",
+            },
+          },
+        ],
       };
 
       const { data, error } = await usersService.findAll(where);

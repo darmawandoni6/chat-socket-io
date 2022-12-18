@@ -66,8 +66,8 @@ module.exports = {
       const token = signToken(data);
 
       const date = new Date();
-      const time = parseInt(process.env.EXP_TOKEN, 10);
-      date.setMilliseconds(time);
+      const exp = parseInt(process.env.EXP_TOKEN, 10);
+      date.setDate(date.getDate() + exp);
 
       res.status = 200;
       res.cookie("token", token, { expires: date, httpOnly: true });

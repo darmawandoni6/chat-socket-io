@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const response = require("../helpers/response");
 const roomsService = require("../services/rooms.service");
 const rooms_usersService = require("../services/rooms_users.service");
+const messageService = require("../services/message.service");
 
 module.exports = {
   createRoom: async (req, res, next) => {
@@ -20,14 +21,34 @@ module.exports = {
         payload.type = "grub";
         payloadUsers = [...grubId, userId];
       }
+      let result = { data: null, error: null };
 
-      const { error } = await roomsService.addRoom(
-        payload,
-        payloadUsers,
-        userId
-      );
-      if (error) throw createError.BadRequest(error);
-      response({ res, status: 200, message: "create room success" });
+      if (payload.type === "private") {
+        result = await roomsService.findOne({ name });
+        if (result.data) {
+          result = await messageService.findAll({ roomId: result.data.id });
+          response({
+            res,
+            status: 200,
+            message: "open room",
+            data: result.data,
+          });
+          return;
+        }
+        if (result.error) {
+          throw createError.BadRequest(result.error);
+        }
+      }
+      result = await roomsService.addRoom(payload, payloadUsers, userId);
+      if (result.error) throw createError.BadRequest(result.error);
+
+      result = await messageService.findAll({ roomId: result.data.id });
+      response({
+        res,
+        status: 200,
+        message: "success create room",
+        data: result.data,
+      });
     } catch (error) {
       next(error);
     }

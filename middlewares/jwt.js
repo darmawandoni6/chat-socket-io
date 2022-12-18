@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 module.exports = {
   signToken: (data) => {
     return jwt.sign(data, process.env.ACCESS_TOKEN, {
-      expiresIn: parseInt(process.env.EXP_TOKEN, 10),
+      expiresIn: `${process.env.EXP_TOKEN}d`,
     });
   },
 
